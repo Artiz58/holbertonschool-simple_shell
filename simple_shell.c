@@ -43,7 +43,6 @@ int main(void)
     /* Si execlp falla, imprimir un error */
 		perror("Error 404");
 		exit(EXIT_FAILURE);
-		exit (0);
 	}
 
     /* Si el proceso es el padre, esperar a que el hijo termine */
