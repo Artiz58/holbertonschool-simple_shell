@@ -6,17 +6,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/wait.h>
-
-#define MAX_LINE_LENGTH 256
-
-/* prototype */
-int main(void);
-char *read_line(void);
-char **parse_command(char *line);
-int execute_command(char **args);
-char **parse_command(char *line);
-
-/* Variable prototypes */
-extern char **environ;
+#include <sys/types.h>
 
 #endif
