@@ -1,5 +1,10 @@
 #include "shell.h"
-
+/**
+ * parse_and_execute - Parse and execute a command line
+ * @input: The command line input to parse and execute
+ *
+ * This function tokenizes the input, parses the command, and executes it.
+ */
 void parse_and_execute(char *input)
 {
 	int i = 0;
@@ -19,8 +24,8 @@ void parse_and_execute(char *input)
 	{
 		if (strcmp(args[0], "which") == 0)
 		{
-            /* "which" command */
 			int j = 1;
+
 			while (args[j])
 			{
 				check_command(args[j]);

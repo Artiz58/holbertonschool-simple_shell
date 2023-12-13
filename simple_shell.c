@@ -1,5 +1,13 @@
 #include "shell.h"
-
+/**
+ * main - Simple shell program
+ *
+ * This is a simple shell program that allows the user to enter commands.
+ * It supports executing commands and the "which" command for checking file
+ * existence.
+ *
+ * Return: 0 on success, non-zero on failure.
+ */
 int main(void)
 {
 	char *buffer = NULL;
