@@ -1,45 +1,60 @@
 #include "shell.h"
-/**
- * main - Simple shell program
- *
- * This is a simple shell program that allows the user to enter commands.
- * It supports executing commands and the "which" command for checking file
- * existence.
- *
- * Return: 0 on success, non-zero on failure.
- */
-int main(void)
-{
-    char *buffer = NULL;
-    size_t buffer_size = 0;
-    ssize_t line_size;
 
-    while (1)
-    {
-        printf("#cisfun$ ");
-        line_size = getline(&buffer, &buffer_size, stdin);
+#define MAX_INPUT_SIZE 1024
 
-        if (line_size == -1)
-        {
+void display_prompt() {
+    printf("#cisfun$ ");
+    fflush(stdout);
+}
+
+void execute_command(char *command) {
+    pid_t pid;
+    int status;
+
+    pid = fork();
+    if (pid == 0) {
+        char **args = malloc(2 * sizeof(char *));
+        if (args == NULL) {
+            perror("Error");
+            exit(EXIT_FAILURE);
+        }
+
+        args[0] = command;
+        args[1] = NULL;
+
+        if (execve(command, args, NULL) == -1) {
+            perror("Error");
+            free(args);
+            exit(EXIT_FAILURE);
+        }
+
+        free(args);
+    } else if (pid < 0) {
+        perror("Error");
+    } else {
+        waitpid(pid, &status, 0);
+    }
+}
+
+int main(void) {
+    char input[MAX_INPUT_SIZE];
+
+    while (1) {
+        display_prompt();
+
+        if (fgets(input, sizeof(input), stdin) == NULL) {
             printf("\n");
             break;
         }
 
-        if (line_size > 0 && buffer[line_size - 1] == '\n')
-        {
-            buffer[line_size - 1] = '\0';
-        }
+        input[strcspn(input, "\n")] = '\0';
 
-        if (strcmp(buffer, "exit") == 0)
-        {
+        if (strcmp(input, "exit") == 0) {
             break;
         }
 
-        execute_command(buffer);
+        execute_command(input);
     }
 
-    free(buffer);
-
-    return (0);
+    return EXIT_SUCCESS;
 }
-
