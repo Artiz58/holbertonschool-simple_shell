@@ -6,28 +6,33 @@
  * This function forks a child process and executes the specified command in
  * the child process.
  */
-void execute_command(char **args)
+void execute_command(char *command)
 {
-	pid_t child_pid;
+	pid_t pid, wpid;
 	int status;
 
-	child_pid = fork();
-	if (child_pid == -1)
-	{
-		perror("Error:");
-		exit(EXIT_FAILURE);
-	}
+	pid = fork();
 
-	if (child_pid == 0)
+	if (pid == 0)
 	{
-		if (execvp(args[0], args) == -1)
+		if (execlp(command, command, (char *)NULL) == -1)
 		{
-			perror("Error:");
+			perror("Error al ejecutar el comando");
 			exit(EXIT_FAILURE);
 		}
 	}
+	else if (pid < 0)
+	{
+		perror("Error al crear el proceso hijo");
+	}
 	else
 	{
-		waitpid(child_pid, &status, 0);
+
+		do
+		{
+			wpid = waitpid(pid, &status, WUNTRACED);
+			(void)wpid;
+		}
+		while (!WIFEXITED(status) && !WIFSIGNALED(status));
 	}
 }

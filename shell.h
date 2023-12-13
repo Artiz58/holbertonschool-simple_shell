@@ -8,8 +8,9 @@
 #include <sys/wait.h>
 #include <string.h>
 
-void execute_command(char **args);
-void check_command(char *command);
-void parse_and_execute(char *input);
+/*void execute_command(char **args);*/
+void execute_command(char *command);
+/*void check_command(char *command);*/
+/*void parse_and_execute(char *input);*/
 
 #endif

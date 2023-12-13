@@ -10,36 +10,36 @@
  */
 int main(void)
 {
-	char *buffer = NULL;
-	size_t buffer_size = 0;
-	size_t length;
-	ssize_t line_size;
+    char *buffer = NULL;
+    size_t buffer_size = 0;
+    ssize_t line_size;
 
-	while (1)
-	{
-		printf("($) ");
-		line_size = getline(&buffer, &buffer_size, stdin);
+    while (1)
+    {
+        printf("#cisfun$ ");
+        line_size = getline(&buffer, &buffer_size, stdin);
 
-		if (line_size == -1)
-		{
-			printf("\n");
-			break;
-		}
+        if (line_size == -1)
+        {
+            printf("\n");
+            break;
+        }
 
-		length = strlen(buffer);
-		if (length > 0 && buffer[length - 1] == '\n')
-		{
-			buffer[length - 1] = '\0';
-		}
+        if (line_size > 0 && buffer[line_size - 1] == '\n')
+        {
+            buffer[line_size - 1] = '\0';
+        }
 
-		if (strcmp(buffer, "exit") == 0)
-		{
-			break;
-		}
+        if (strcmp(buffer, "exit") == 0)
+        {
+            break;
+        }
 
-		parse_and_execute(buffer);
-	}
+        execute_command(buffer);
+    }
 
-	free(buffer);
-	return 0;
+    free(buffer);
+
+    return (0);
 }
+
