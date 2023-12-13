@@ -1,38 +1,45 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include "shell.h"
+/**
+ * main - Simple shell program
+ *
+ * This is a simple shell program that allows the user to enter commands.
+ * It supports executing commands and the "which" command for checking file
+ * existence.
+ *
+ * Return: 0 on success, non-zero on failure.
+ */
+int main(void)
+{
+	char *buffer = NULL;
+	size_t buffer_size = 0;
+	size_t length;
+	ssize_t line_size;
 
-#define BUFFER_SIZE 128
+	while (1)
+	{
+		printf("($) ");
+		line_size = getline(&buffer, &buffer_size, stdin);
 
-void prompt() {
-  printf("($) ");
-}
+		if (line_size == -1)
+		{
+			printf("\n");
+			break;
+		}
 
-extern char **environ; // Declare the external variable
+		length = strlen(buffer);
+		if (length > 0 && buffer[length - 1] == '\n')
+		{
+			buffer[length - 1] = '\0';
+		}
 
-int main() {
-  char buffer[BUFFER_SIZE];
-  char *command;
+		if (strcmp(buffer, "exit") == 0)
+		{
+			break;
+		}
 
-  while (1) {
-    prompt();
+		parse_and_execute(buffer);
+	}
 
-    if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
-      printf("\n");
-      break;
-    }
-
-    command = strtok(buffer, " \n");
-
-    if (!command || strlen(command) == 0) {
-      continue;
-    }
-
-    if (execve(command, NULL, environ) == -1) { // Use environ instead of envp
-      printf("'%s': No such file or directory\n", command);
-    }
-  }
-
-  return 0;
+	free(buffer);
+	return 0;
 }
