@@ -1,3 +1,5 @@
+.TH SIMPLE_SHELL 1 "December 2023" "Version 1.0" "User Commands"
+
 .SH NAME
 simple_shell \- A basic implementation of a shell in C.
 
@@ -6,7 +8,7 @@ simple_shell \- A basic implementation of a shell in C.
 [\fIOPTION\fR]...
 
 .SH DESCRIPTION
-\fBsimple_shell\fR is a basic implementation of a shell that allows the user to execute commands in a command-line environment.
+\fBsimple_shell\fR is a simple yet functional shell written in C that provides a command-line interface for users to interact with the system.
 
 .SH OPTIONS
 .TP
@@ -19,30 +21,88 @@ Display the current version of simple_shell.
 
 .SH COMMANDS
 .LP
-\fBsimple_shell\fR supports the execution of system commands and provides some basic shell functionalities.
+\fBsimple_shell\fR supports a variety of system commands and provides additional shell functionalities:
 
 .LP
 \fBexit\fR - Exit the shell.
 
+.SH INTERACTIVE MODE
+.LP
+When run interactively, \fBsimple_shell\fR presents a command prompt, allowing users to enter commands. It recognizes both built-in commands and external system commands.
+
+.LP
+Built-in commands include:
+.TP
+.B exit
+Exit the shell.
+
+.LP
+.SH SCRIPT MODE
+.LP
+\fBsimple_shell\fR can also run in script mode, where it reads commands from a script file and executes them sequentially.
+
+.LP
+To run a script, use:
+.BR simple_shell " script.sh"
+
+.SH ENVIRONMENT VARIABLES
+.LP
+\fBsimple_shell\fR supports the following environment variables:
+
+.TP
+.B HOME
+User's home directory.
+
+.TP
+.B PATH
+A colon-separated list of directories in which the shell looks for commands.
+
+.TP
+.B PS1
+The primary prompt string. Default is "$".
+
 .SH EXAMPLES
 .LP
-To execute a simple command:
+To execute a command:
 .BR simple_shell " ls -l"
 
-.SH AUTHOR
-This program was written by [Adriel Ortiz Sanchez].
+.LP
+To run a script:
+.BR simple_shell " script.sh"
 
-.SH COPYRIGHT INFORMATION
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+.SH EXIT STATUS
+.LP
+\fBsimple_shell\fR returns the following exit status:
+
+.TP
+.B 0
+Successful execution.
+
+.TP
+.B 1
+General error.
+
+.TP
+.B 127
+Command not found.
+
+.SH FILES
+.LP
+\fBsimple_shell\fR uses the following files:
+
+.TP
+.BR /etc/simple_shell.conf
+Global configuration file.
+
+.TP
+.BR ~/.simple_shellrc
+User-specific configuration file.
+
+.SH AUTHORS
+\fBsimple_shell\fR was written by [Adriel Ortiz].
+
+.SH COPYRIGHT
+Copyright © 2023 [Adriel Ortiz]. This is free software; see the COPYING file for license information.
 
 .SH SEE ALSO
 .BR execve "(2), " fork "(2), " wait "(2), " access "(2)
-
-.SH REPORTING BUGS
-If you find any bugs in \fBsimple_shell\fR, please report the issue to [artiz58@gmail.com].
-
-.SH HISTORY
-This manual for \fBsimple_shell\fR was written by [Adriel Ortiz Sanchez].
-
-.SH COPYRIGHT
-Copyright © [2023] [Adriel Ortiz Sanchez]. This is free software; see the COPYING file for license information.
