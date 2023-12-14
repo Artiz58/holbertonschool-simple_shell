@@ -1,4 +1,6 @@
-Welcome to the # Simple Shell # (sh)! This document provides an overview of the code's functionality and usage.
+# Simple Shell
+
+Welcome to the Simple Shell (sh)! This document provides an overview of the code's functionality and usage.
 
 ### Overview
 
