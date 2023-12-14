@@ -1,0 +1,48 @@
+.SH NAME
+simple_shell \- A basic implementation of a shell in C.
+
+.SH SYNOPSIS
+.B simple_shell
+[\fIOPTION\fR]...
+
+.SH DESCRIPTION
+\fBsimple_shell\fR is a basic implementation of a shell that allows the user to execute commands in a command-line environment.
+
+.SH OPTIONS
+.TP
+.BR -h, --help
+Display help and information about available options.
+
+.TP
+.BR -v, --version
+Display the current version of simple_shell.
+
+.SH COMMANDS
+.LP
+\fBsimple_shell\fR supports the execution of system commands and provides some basic shell functionalities.
+
+.LP
+\fBexit\fR - Exit the shell.
+
+.SH EXAMPLES
+.LP
+To execute a simple command:
+.BR simple_shell " ls -l"
+
+.SH AUTHOR
+This program was written by [Adriel Ortiz Sanchez].
+
+.SH COPYRIGHT INFORMATION
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+.SH SEE ALSO
+.BR execve "(2), " fork "(2), " wait "(2), " access "(2)
+
+.SH REPORTING BUGS
+If you find any bugs in \fBsimple_shell\fR, please report the issue to [artiz58@gmail.com].
+
+.SH HISTORY
+This manual for \fBsimple_shell\fR was written by [Adriel Ortiz Sanchez].
+
+.SH COPYRIGHT
+Copyright © [2023] [Adriel Ortiz Sanchez]. This is free software; see the COPYING file for license information.

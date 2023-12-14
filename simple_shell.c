@@ -3,6 +3,7 @@
 /**
  * error- found not excectubale command
  * @args: array of arguments from get_tokens
+ * @str_line: read line
  */
 
 void error(char **args, char *str_line)
