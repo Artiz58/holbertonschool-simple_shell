@@ -36,6 +36,9 @@ int main(void)
         }
         array[i] = NULL;
 
+        if (strcmp(array[0], "exit") == 0)
+            break;
+
         child_pid = fork();
 
         if (child_pid == -1)
@@ -59,12 +62,10 @@ int main(void)
         for (j = 0; j < i; j++)
             free(array[j]);
 
-        free(array);
-
         i = 0;
     }
+
     free(buf);
 
     return 0;
 }
-
