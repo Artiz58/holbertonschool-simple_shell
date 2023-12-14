@@ -1,54 +1,63 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include "shell.h"
 
-void execute(char *input) {
-    pid_t pid = fork();
-    int status;
+/**
+ * error- found not excectubale command
+ * @args: array of arguments from get_tokens
+ */
 
-    if (pid == -1) {
-        perror("Fork failed");
-        exit(1);
-    } else if (pid == 0) {
-        /* Child process */
-        char *argv[] = {"/bin/sh", "-c", NULL, NULL};
-
-        /* Allocate memory for the command string */
-        argv[2] = malloc(strlen(input) + 1);
-        if (argv[2] == NULL) {
-            perror("Memory allocation failed");
-            exit(1);
-        }
-
-        /* Copy the input string into the allocated memory */
-        strcpy(argv[2], input);
-
-        execvp(argv[0], argv);
-
-        /* If execvp fails, perror and exit */
-        perror("Exec failed");
-        exit(1);
-    } else {
-        /* Parent process */
-        waitpid(pid, &status, 0);
-    }
+void error(char **args)
+{
+	fprintf(stderr, "./hsh: 1: %s: not found\n", args[0]);
+	exit(127);
 }
 
-int main() {
-    char input[1024];
-    while (1) {
-        fputs("($) ", stdout);
-        if (!fgets(input, sizeof(input), stdin)) {
-            printf("\n");
-            break;
-        }
-        if (input[strlen(input) - 1] == '\n') {
-            input[strlen(input) - 1] = '\0';
-        }
-        execute(input);
-    }
-    return 0;
+
+/**
+ * main - Simple System Shell (sh)
+ * Return: 0 on succes
+ */
+
+int main(void)
+{
+	char *str_line = NULL;
+	size_t len = 0;
+	ssize_t read_bytes;
+	int on = 1;
+	char **args;
+
+	while (on != 0)
+	{
+		if (isatty(fileno(stdin)))
+			printf("($) ");
+		read_bytes = getline(&str_line, &len, stdin); /* stdin into str_line */
+
+		if (read_bytes == -1) /* check if getline is succesfull */
+		{
+			if (isatty(fileno(stdin)))
+				printf("\n");
+			on = 0;
+		}
+		else
+		{
+			remove_newline(&str_line, &read_bytes);
+			if (strcmp(str_line, "exit") == 0) /* check if user put Exit */
+				on = 0;
+			else
+			{
+				args = get_tokens(str_line); /* makes tokens and args array with mallocs */
+				if ((white_spaces(args, str_line)) == 0) /* if white spaces only */
+					return (main());
+				if (access(args[0], X_OK) == 0) /*!args */
+					my_exe(args, environ);
+				else
+					get_path(args, environ); /*!args */
+				if (access(args[0], X_OK) != 0)
+					error(args);
+				free_array(args);
+			}
+		}
+	}
+	free(str_line);/* always free the str_line form stdin */
+	return (0);
 }
