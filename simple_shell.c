@@ -1,82 +1,72 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <sys/types.h>
+#include <unistd.h>
 #include <sys/wait.h>
 
 #define BUFFER_SIZE 1024
 
-/* Use a separate function to avoid code duplication */
-void display_prompt(void) {
-  printf("($) ");
-  fflush(stdout);
+void prompt() {
+  printf("#cisfun$ ");
 }
 
-int main(void) {
-  char *buffer = NULL;
-  size_t bufsize = 0;
-  char *args[BUFFER_SIZE]; /* Array size should be large enough */
-  ssize_t read_chars;
-  pid_t child_pid;
+extern char **environ;
+
+int main() {
+  char line[BUFFER_SIZE];
+  char *args[2];
   int status;
-  int arg_count = 0;
-  char *token;
+  pid_t pid;
+
+  args[0] = line;
+  args[1] = NULL;
 
   while (1) {
-    display_prompt();
+    prompt();
 
-    /* Read a line from the user using getline */
-    read_chars = getline(&buffer, &bufsize, stdin);
-
-    if (read_chars == -1) {
-      perror("getline");
-      exit(EXIT_FAILURE);
+    /* Read the command line */
+    if (fgets(line, BUFFER_SIZE, stdin) == NULL) {
+      /* Handle Ctrl+D */
+      if (feof(stdin)) {
+        printf("\n");
+        break;
+      } else {
+        perror("fgets");
+        exit(1);
+      }
     }
 
-    if (read_chars == 1) {
-      /* Empty line, ignore */
+    /* Remove trailing newline character */
+    line[strcspn(line, "\n")] = '\0';
+
+    /* Check for empty command */
+    if (strlen(line) == 0) {
       continue;
     }
 
-    /* Null-terminate the string */
-    buffer[read_chars - 1] = '\0';
-
-    /* Parse the command */
-    token = strtok(buffer, " ");
-
-    while (token != NULL) {
-      args[arg_count] = token;
-      arg_count++;
-      token = strtok(NULL, " ");
+    /* Check for built-in command (currently only "exit") */
+    if (strcmp(line, "exit") == 0) {
+      break;
     }
-    args[arg_count] = NULL; /* Terminate arguments array */
 
     /* Fork a child process */
-    child_pid = fork();
+    pid = fork();
 
-    if (child_pid == -1) {
+    if (pid == -1) {
       perror("fork");
-      exit(EXIT_FAILURE);
+      exit(1);
     }
 
-    if (child_pid == 0) {
+    if (pid == 0) {
       /* Child process */
-      execve(args[0], args, NULL); /* Use the correct arguments array */
-      perror("execve"); /* Report error on failure */
-      exit(EXIT_FAILURE);
+      execve(line, args, environ);
+      perror("execve");
+      exit(1);
     } else {
       /* Parent process */
-      waitpid(child_pid, &status, 0); /* Wait for child completion */
-
-      /* Check if the executable was not found */
-      if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
-        fprintf(stderr, "%s: command not found\n", args[0]);
-      }
+      waitpid(pid, &status, 0);
     }
   }
 
-  free(buffer); /* Free allocated memory */
-
-  return EXIT_SUCCESS;
+  return 0;
 }
