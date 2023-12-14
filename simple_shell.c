@@ -39,9 +39,8 @@ void execute(char *input) {
 
 int main() {
     char input[1024];
-
     while (1) {
-        printf("# ");
+        fputs("($) ", stdout);
         if (!fgets(input, sizeof(input), stdin)) {
             printf("\n");
             break;
