@@ -1,118 +1,55 @@
-#include "shell.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
-int main(void)
-{
-    char line[MAX_LINE_LENGTH];
-    char **args;
-    char *copied_file;
-    pid_t pid;
+void execute(char *input) {
+    pid_t pid = fork();
+    int status;
 
-    while (1)
-    {
-        /* Display prompt */
-        printf("> ");
+    if (pid == -1) {
+        perror("Fork failed");
+        exit(1);
+    } else if (pid == 0) {
+        /* Child process */
+        char *argv[] = {"/bin/sh", "-c", NULL, NULL};
 
-        /* Read user input */
-        if (fgets(line, MAX_LINE_LENGTH, stdin) == NULL)
-        {
-            /* Handle end of file (Ctrl+D) */
+        /* Allocate memory for the command string */
+        argv[2] = malloc(strlen(input) + 1);
+        if (argv[2] == NULL) {
+            perror("Memory allocation failed");
+            exit(1);
+        }
+
+        /* Copy the input string into the allocated memory */
+        strcpy(argv[2], input);
+
+        execvp(argv[0], argv);
+
+        /* If execvp fails, perror and exit */
+        perror("Exec failed");
+        exit(1);
+    } else {
+        /* Parent process */
+        waitpid(pid, &status, 0);
+    }
+}
+
+int main() {
+    char input[1024];
+
+    while (1) {
+        printf("# ");
+        if (!fgets(input, sizeof(input), stdin)) {
             printf("\n");
             break;
         }
-
-        line[strcspn(line, "\n")] = '\0'; /* Remove trailing newline */
-
-        if (!strcmp(line, ""))
-        { /* Case: Spaces only (small/large/medium) */
-            continue;
+        if (input[strlen(input) - 1] == '\n') {
+            input[strlen(input) - 1] = '\0';
         }
-
-        /* Parse command */
-        args = parse_command(line);
-
-        /* Check for exit command */
-        if (!strcmp(args[0], "exit"))
-        {
-            free(args);
-            break;
-        }
-
-        /* Handle special case: copy and execute */
-        if (!strcmp(args[0], "cp"))
-        {
-            int ret = system(line); /* Copy using system() */
-            if (ret != 0)
-            {
-                perror("system");
-                free(args);
-                continue;
-            }
-
-            /* Extract copied filename and remaining arguments */
-            copied_file = strtok(line + 3, " ");
-            args[0] = strdup(copied_file);
-        }
-
-        /* Fork a child process */
-        pid = fork();
-
-        if (pid == 0)
-        { /* Child process */
-            /* Execute command with arguments */
-            execvp(args[0], args);
-            perror(args[0]);
-            free(args);
-            exit(1);
-        }
-        else if (pid == -1)
-        { /* Error */
-            perror("fork");
-            free(args);
-            exit(1);
-        }
-        else
-        { /* Parent process */
-            waitpid(pid, NULL, 0); /* Wait for child to finish */
-            free(args);
-        }
+        execute(input);
     }
-
     return 0;
-}
-
-/* Implementation of parse_command function */
-char **parse_command(char *line)
-{
-    int buffer_size = MAX_LINE_LENGTH;
-    int position = 0;
-    char **tokens = malloc(buffer_size * sizeof(char *));
-    char *token;
-
-    if (!tokens)
-    {
-        fprintf(stderr, "Allocation error\n");
-        exit(EXIT_FAILURE);
-    }
-
-    token = strtok(line, " ");
-    while (token != NULL)
-    {
-        tokens[position] = token;
-        position++;
-
-        if (position >= buffer_size)
-        {
-            buffer_size += MAX_LINE_LENGTH;
-            tokens = realloc(tokens, buffer_size * sizeof(char *));
-            if (!tokens)
-            {
-                fprintf(stderr, "Allocation error\n");
-                exit(EXIT_FAILURE);
-            }
-        }
-
-        token = strtok(NULL, " ");
-    }
-    tokens[position] = NULL;
-    return tokens;
 }
