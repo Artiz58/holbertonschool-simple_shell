@@ -1,71 +1,78 @@
-#include "shell.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
-int main(void)
-{
-    size_t buf_size = 0;
-    ssize_t read_bytes;
-    char *buf = NULL;
-    char *token;
-    int status, i = 0, j;
-    char **array;
+#define BUFFER_SIZE 1024
 
+void display_prompt(void) {
+    printf("#cisfun$ ");
+    fflush(stdout);
+}
+
+int main(void) {
+    char *buffer = NULL;
+	size_t bufsize = 0;
+    char *args[2];
+    ssize_t read_chars;
     pid_t child_pid;
+    int status;
 
-    while (1)
-    {
-        printf("($) ");
-        read_bytes = getline(&buf, &buf_size, stdin);
+    while (1) {
+        display_prompt();
 
-        if (read_bytes == -1)
-        {
-            perror("Error reading input");
+        /* Read a line from the user using getline */
+        read_chars = getline(&buffer, &bufsize, stdin);
+
+        if (read_chars == -1) {
+            perror("getline");
             exit(EXIT_FAILURE);
         }
 
-        if (buf[read_bytes - 1] == '\n')
-            buf[read_bytes - 1] = '\0';
-
-        token = strtok(buf, " \t\n");
-        array = malloc(sizeof(char *) * 1024);
-
-        while (token)
-        {
-            array[i] = strdup(token);
-            token = strtok(NULL, " \t\n");
-            i++;
+        if (read_chars == 1) {
+            /* Empty line, ignore */
+            continue;
         }
-        array[i] = NULL;
 
-        if (strcmp(array[0], "exit") == 0)
-            break;
+        /* Null-terminate the string */
+        buffer[read_chars - 1] = '\0';
 
+        /* Fork a child process */
         child_pid = fork();
 
-        if (child_pid == -1)
-        {
-            perror("Error forking");
+        if (child_pid == -1) {
+            perror("fork");
             exit(EXIT_FAILURE);
         }
-        else if (child_pid == 0)
-        {
-            if (execvp(array[0], array) == -1)
-            {
-                perror("Error executing command");
-                exit(EXIT_FAILURE);
+
+        if (child_pid == 0) {
+            /* Child process */
+
+            /* Parse the command */
+            args[0] = buffer;
+            args[1] = NULL;
+
+            /* Execute the command */
+            execve(buffer, args, NULL);
+
+            /* If execve fails */
+            perror("execve");
+            exit(EXIT_FAILURE);
+        } else {
+            /* Parent process */
+
+            /* Wait for the child to complete */
+            waitpid(child_pid, &status, 0);
+
+            /* Check if the executable was not found */
+            if (WIFEXITED(status) && WEXITSTATUS(status) == 127) {
+                fprintf(stderr, "%s: command not found\n", buffer);
             }
         }
-        else
-        {
-            waitpid(child_pid, &status, 0);
-        }
-
-        for (j = 0; j < i; j++)
-            free(array[j]);
-
-        i = 0;
     }
+    free(buffer);
 
-    free(buf);
-
-    return 0;
+    return (EXIT_SUCCESS);
 }
