@@ -36,13 +36,18 @@ int main(void) {
     }
 
     /* Tokenize the command and populate the args array */
-    args[i++] = strtok(command, " ");
-    while ((args[i++] = strtok(NULL, " ")) != NULL);
+    args[0] = strtok(command, " ");
+    i = 1;
+    while ((args[i++] = strtok(NULL, " ")) != NULL && i < BUFFER_SIZE - 1);
 
     /* Search for the command in the PATH */
     for (path_entry = environ[0]; path_entry != NULL; path_entry = path_entry + strlen(path_entry) + 1) {
       /* Build the full path */
       char *full_path = malloc(strlen(path_entry) + strlen(args[0]) + 2);
+      if (full_path == NULL) {
+        perror("Error");
+        exit(EXIT_FAILURE);
+      }
       strcpy(full_path, path_entry);
       strcat(full_path, "/");
       strcat(full_path, args[0]);
