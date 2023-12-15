@@ -30,7 +30,7 @@ To run the shell, compile the code and execute the resulting binary. You can the
 ```
 ./hsh
 ($) ls
-($) cat myfile.txt
+($) cat file.txt
 ($) cd /home/user
 ($) pwd
 ($) exit
