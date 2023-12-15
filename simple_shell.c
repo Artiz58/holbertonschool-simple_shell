@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 
 #define BUFFER_SIZE 256
+#define NUM_PATH_ENTRIES 5
 
 extern char **environ;
 
@@ -13,7 +14,16 @@ int main(void) {
   char *command;
   char *args[BUFFER_SIZE];
   int i = 0;
-  char *path_entry;
+  int j;
+  int command_found = 0;
+  char *full_path;
+  char *path_entries[NUM_PATH_ENTRIES] = {
+    "/usr/local/bin/",
+    "/usr/bin/",
+    "/bin/",
+    "/usr/local/games/",
+    "/usr/games/"
+  };
 
   while (1) {
     /* Print the prompt */
@@ -27,28 +37,23 @@ int main(void) {
       break;
     }
 
-    /* Extract the command and remove the newline character */
-    command = strtok(buffer, "\n");
-
-    /* Check for empty command */
-    if (*command == '\0') {
-      continue;
-    }
+    /* Set the command to "/bin/ls" */
+    command = "/bin/ls";
 
     /* Tokenize the command and populate the args array */
     args[0] = strtok(command, " ");
     i = 1;
     while ((args[i++] = strtok(NULL, " ")) != NULL && i < BUFFER_SIZE - 1);
 
-    /* Search for the command in the PATH */
-    for (path_entry = environ[0]; path_entry != NULL; path_entry = path_entry + strlen(path_entry) + 1) {
+    /* Search for the command in the specified path entries */
+    for (j = 0; j < NUM_PATH_ENTRIES; ++j) {
       /* Build the full path */
-      char *full_path = malloc(strlen(path_entry) + strlen(args[0]) + 2);
+      full_path = malloc(strlen(path_entries[j]) + strlen(args[0]) + 2);
       if (full_path == NULL) {
         perror("Error");
         exit(EXIT_FAILURE);
       }
-      strcpy(full_path, path_entry);
+      strcpy(full_path, path_entries[j]);
       strcat(full_path, "/");
       strcat(full_path, args[0]);
 
@@ -61,14 +66,15 @@ int main(void) {
           exit(EXIT_FAILURE);
         } else {
           wait(NULL);
+          command_found = 1;
           break;
         }
       }
       free(full_path);
     }
 
-    /* The command was not found */
-    if (path_entry == NULL) {
+    /* The command was not found in the specified paths */
+    if (!command_found) {
       printf("Command not found: %s\n", args[0]);
     }
   }
