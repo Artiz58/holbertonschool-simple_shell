@@ -7,12 +7,14 @@
 #define MAX_BUFFER_SIZE 1024
 #define MAX_ARGS 64
 
+extern char **environ;
+
 void read_command(char **command) {
     size_t bufsize = 0;
     ssize_t read_bytes;
 
-        if(isatty(fileno(stdin)) == -1)
-                printf("($) ");
+    if(isatty(fileno(stdin)))
+        printf("($) ");
     read_bytes = getline(command, &bufsize, stdin);
 
     if (read_bytes == -1) {
@@ -45,10 +47,7 @@ void execute_command(char *command) {
         exit(EXIT_FAILURE);
     } else if (pid == 0) {
         /* Child process */
-        char *envp[] = { NULL }; /* You can modify this to include environment variables if needed */
-        execve(args[0], args, envp);
-        perror("execve");  /* Will only be reached if execve fails */
-        exit(EXIT_FAILURE);
+        execve(args[0], args, environ);
     } else {
         /* Parent process */
         wait(NULL);  /* Wait for the child to finish */
