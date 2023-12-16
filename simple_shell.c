@@ -18,7 +18,7 @@ void read_command(char **command) {
     read_bytes = getline(command, &bufsize, stdin);
 
     if (read_bytes == -1) {
-		exit(0);
+                exit(0);
     }
 
     /* Remove newline character if present */
@@ -30,7 +30,7 @@ void read_command(char **command) {
 void execute_command(char *command) {
     char *args[MAX_ARGS];
     size_t arg_count = 0;
-	size_t i;
+        size_t i;
     pid_t pid;
 
     /* Tokenize the command */
@@ -53,7 +53,7 @@ void execute_command(char *command) {
         wait(NULL);  /* Wait for the child to finish */
     }
 
-	for (i = 0; i < arg_count; ++i) {
+        for (i = 0; i < arg_count; ++i) {
     free(args[i]);
 }
 
@@ -68,12 +68,10 @@ int main(void) {
         /* Check for exit command */
         if (strcmp(command, "exit") == 0) {
             free(command);
-			break;
         }
 
         execute_command(command);
-		free(command);
-		command = NULL;
     }
+        free(command);
     return (0);
 }
