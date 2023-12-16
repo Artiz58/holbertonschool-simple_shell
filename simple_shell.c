@@ -11,11 +11,11 @@ void read_command(char **command) {
     size_t bufsize = 0;
     ssize_t read_bytes;
 
-    printf("$ ");
+        if(isatty(fileno(stdin)) == -1)
+                printf("($) ");
     read_bytes = getline(command, &bufsize, stdin);
 
     if (read_bytes == -1) {
-        perror("getline");
         exit(EXIT_FAILURE);
     }
 
@@ -64,8 +64,6 @@ int main(void) {
         /* Check for exit command */
         if (strcmp(command, "exit") == 0) {
             free(command);
-            printf("Exiting shell...\n");
-            exit(EXIT_SUCCESS);
         }
 
         execute_command(command);
