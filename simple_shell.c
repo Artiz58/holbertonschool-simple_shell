@@ -30,6 +30,7 @@ void read_command(char **command) {
 void execute_command(char *command) {
     char *args[MAX_ARGS];
     size_t arg_count = 0;
+	size_t i;
     pid_t pid;
 
     /* Tokenize the command */
@@ -51,6 +52,11 @@ void execute_command(char *command) {
         /* Parent process */
         wait(NULL);  /* Wait for the child to finish */
     }
+
+	for (i = 0; i < arg_count; ++i) {
+    free(args[i]);
+}
+
 }
 
 int main(void) {
@@ -62,10 +68,12 @@ int main(void) {
         /* Check for exit command */
         if (strcmp(command, "exit") == 0) {
             free(command);
+			break;
         }
 
         execute_command(command);
+		free(command);
+		command = NULL;
     }
-
     return (0);
 }
