@@ -1,77 +1,128 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
 #include <sys/wait.h>
-
-#define MAX_BUFFER_SIZE 1024
-#define MAX_ARGS 64
 
 extern char **environ;
 
-void read_command(char **command) {
-    size_t bufsize = 0;
-    ssize_t read_bytes;
+#define MAX_LINE_LENGTH 256
+#define MAX_ARGS 100
 
-    if(isatty(fileno(stdin)))
-        printf("($) ");
-    read_bytes = getline(command, &bufsize, stdin);
-
-    if (read_bytes == -1) {
-                exit(0);
-    }
-
-    /* Remove newline character if present */
-    if ((*command)[read_bytes - 1] == '\n') {
-        (*command)[read_bytes - 1] = '\0';
+/**
+ * print_prompt - prints the shell prompt
+ * @interactive: indicates whether the shell is running interactively
+ */
+void print_prompt(int interactive) {
+    if (interactive) {
+        char *dollar = "$";
+        printf("%s ", dollar);  /* Print the interactive prompt */
     }
 }
 
-void execute_command(char *command) {
-    char *args[MAX_ARGS];
-    size_t arg_count = 0;
-        size_t i;
+/**
+ * execute_command - executes the given command with arguments
+ * @full_path: full path to the executable
+ * @args: array of command-line arguments
+ * @env: environment variables
+ */
+void execute_command(char *full_path, char *args[], char *env[]) {
     pid_t pid;
+    int status;
 
-    /* Tokenize the command */
-    char *token = strtok(command, " ");
-    while (token != NULL && arg_count < MAX_ARGS - 1) {
-        args[arg_count++] = token;
-        token = strtok(NULL, " ");
-    }
-    args[arg_count] = NULL; /* Null-terminate the argument list */
-
-    pid = fork();
-
+    pid = fork();   /* Create a child process */
     if (pid == -1) {
-        perror("fork");
-    } else if (pid == 0) {
-        /* Child process */
-        execve(args[0], args, environ);
-    } else {
-        /* Parent process */
-        wait(NULL);  /* Wait for the child to finish */
+        perror("fork failed");
+        exit(EXIT_FAILURE);
     }
 
-        for (i = 0; i < arg_count; ++i) {
-    free(args[i]);
+    if (pid == 0) {   /* Code executed by the child process */
+        if (execve(full_path, args, env) == -1) {
+            printf("Command not found\n");
+            exit(EXIT_FAILURE);
+        }
+    } else {    /* Code executed by the parent process */
+        waitpid(pid, &status, 0);       /* Wait for the child process to finish */
+    }
 }
 
-}
-
+/**
+ * main - main function of the shell
+ * Return: 0 when the program ends
+ */
 int main(void) {
+    int num_tokens, k;
+    size_t i;
+    char *args[MAX_ARGS];
     char *command = NULL;
+    char *token;
+    size_t buffer = 0;
+    size_t length;
+    char *path[] = {"/usr/local/bin/", "/usr/bin/", "/bin/", "/usr/local/games/", "/usr/games/"};
+    char full_path[MAX_ARGS];
+    char **env = environ;
+
+    int interactive = isatty(fileno(stdin));
 
     while (1) {
-        read_command(&command);
+        print_prompt(interactive);
 
-        /* Check for exit command */
-        if (strcmp(command, "exit") == 0) {
-            free(command);
+        if (getline(&command, &buffer, stdin) != -1) {
+            length = strlen(command);
+            if (command[length - 1] == '\n')
+                command[length - 1] = '\0';
+
+            if (strcmp(command, "") == 0)
+                continue;
+
+            if (strcmp(command, "exit") == 0) {
+                free(command);
+                return (0);
+            }
+
+            num_tokens = 0;
+            token = strtok(command, " ");
+            while (token != NULL && num_tokens < MAX_ARGS - 1) {
+                args[num_tokens++] = token;
+                token = strtok(NULL, " ");
+            }
+            args[num_tokens] = NULL;
+
+            if (num_tokens == 0)
+                continue;
+
+            for (k = 0; k < num_tokens; k++)
+                ;
+
+            if (access(args[0], X_OK) == 0) {
+                for (i = 0; i < 5; i++) {
+                    execve(command, args, env);
+                    break;
+                }
+            } else {
+                for (i = 0; i < 5; i++) {
+                    strcpy(full_path, path[i]);
+                    strcat(full_path, args[0]);
+
+                    if (access(full_path, X_OK) == 0)
+                        break;
+                }
+            }
+
+            if (access(full_path, X_OK) == -1) {
+                printf("Command not found\n");
+                continue;
+            }
+
+            execute_command(full_path, args, env);
+        } else {
+            if (!interactive)
+                break;
+            printf("\n");
+            break;
         }
-
-        execute_command(command);
     }
-        free(command);
+    free(command);
     return (0);
 }
