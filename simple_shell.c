@@ -18,7 +18,7 @@ void read_command(char **command) {
     read_bytes = getline(command, &bufsize, stdin);
 
     if (read_bytes == -1) {
-        exit(EXIT_FAILURE);
+		exit(0);
     }
 
     /* Remove newline character if present */
@@ -44,7 +44,6 @@ void execute_command(char *command) {
 
     if (pid == -1) {
         perror("fork");
-        exit(EXIT_FAILURE);
     } else if (pid == 0) {
         /* Child process */
         execve(args[0], args, environ);
@@ -68,5 +67,5 @@ int main(void) {
         execute_command(command);
     }
 
-    return 0;
+    return (0);
 }
