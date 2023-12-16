@@ -3,7 +3,7 @@
  * main - main function of the shell
  * Return: 0 when the program ends
  */
-int main()
+int main(void)
 {
 	int num_tokens = 0, _prompt = isatty(fileno(stdin));
 	char *args[MAX_ARGS], *command = NULL, *token;
@@ -58,4 +58,4 @@ while (1)
 	}
 	free(command);
 	return (0);
-} 
+}
