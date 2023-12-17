@@ -14,7 +14,7 @@ extern char **environ;
 #define MAX_ARGS 100
 #define MAX_PATHS 5
 /* simple_fun.c */
-void sigintHandler();
+void sigintHandler(void);
 void display_prompt(void);
 ssize_t get_command(char **buffer, size_t *size);
 /* check_fun.c */
