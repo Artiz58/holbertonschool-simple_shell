@@ -34,16 +34,7 @@ When run interactively, \fBsimple_shell\fR presents a command prompt, allowing u
 Built-in commands include:
 .TP
 .B exit
-Exit the shell.
-
-.LP
-.SH SCRIPT MODE
-.LP
-\fBsimple_shell\fR can also run in script mode, where it reads commands from a script file and executes them sequentially.
-
-.LP
-To run a script, use:
-.BR simple_shell " script.sh"
+Exit the shell./1
 
 .SH ENVIRONMENT VARIABLES
 .LP
@@ -59,16 +50,12 @@ A colon-separated list of directories in which the shell looks for commands.
 
 .TP
 .B PS1
-The primary prompt string. Default is "$".
+The primary prompt string. Default is "($)".
 
 .SH EXAMPLES
 .LP
 To execute a command:
 .BR simple_shell " ls -l"
-
-.LP
-To run a script:
-.BR simple_shell " script.sh"
 
 .SH EXIT STATUS
 .LP
@@ -77,26 +64,6 @@ To run a script:
 .TP
 .B 0
 Successful execution.
-
-.TP
-.B 1
-General error.
-
-.TP
-.B 127
-Command not found.
-
-.SH FILES
-.LP
-\fBsimple_shell\fR uses the following files:
-
-.TP
-.BR /etc/simple_shell.conf
-Global configuration file.
-
-.TP
-.BR ~/.simple_shellrc
-User-specific configuration file.
 
 .SH AUTHORS
 \fBsimple_shell\fR was written by [Adriel Ortiz].

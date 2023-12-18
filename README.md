@@ -1,54 +1,51 @@
 # Simple Shell
 
-Welcome to the Simple Shell! This document provides an overview of the code's functionality and usage.
+This is a simple shell implementation in C. The shell supports basic command execution, parsing, and checks for command accessibility in specified paths.
 
-### Overview
+### Features
 
-This code implements a basic shell program capable of taking user input, parsing commands, and executing them. It allows users to:
+- Command Execution: Executes commands with or without specified paths.
+- Command Parsing: Parses user input into command tokens.
+- Path Checking: Checks for command accessibility in specified paths.
+- Signal Handling: Handles the SIGINT signal (Ctrl + C) to exit the shell gracefully.
 
-- Run commands: Enter commands directly or from a file.
-- Access files: Execute applications and scripts located in various directories.
-- Navigate directories: Use built-in commands like ```cd``` to change directories.
-- Exit the shell: Use the ```exit``` command to terminate the program.
-
-### Key Functions
-
-The code relies on several key functions to achieve its functionality:
-
-- error: Handles and displays error messages when a command is not found.
-- main: Drives the main loop of the shell, taking user input, parsing commands, and executing them.
-- get_tokens: Takes a user input string and parses it into an array of tokens (arguments).
-- get_path: Searches for the executable file associated with a command in various predefined paths.
-- my_exe: Creates a child process to execute the command using ```execve```.
-- white_spaces: Checks if the user input contains only whitespace characters.
-- free_array: Frees the memory allocated for the token array.
-- remove_newline: Removes the newline character from the user input string.
 ### Usage
 
-To run the shell, compile the code and execute the resulting binary. You can then enter commands directly in the terminal. For example:
+#### Compile the Shell:
 
 ```
+bash
+
+gcc -Wall -Werror -Wextra -pedantic -std=gnu89 *.c -o hsh
+```
+
+#### Run the Shell:
+
+```
+bash
+
 ./hsh
-($) ls
-($) cat file.txt
-($) cd /home/user
-($) pwd
-($) exit
 ```
 
-### Additional Notes
+#### Available Commands:
 
-- The shell currently supports basic built-in commands like exit and ```cd```.
-- The shell can execute commands located in various predefined paths, including ```/usr/bin``` and ```/usr/local/bin```.
-- The code includes safety measures to handle errors and prevent potential vulnerabilities.
+- Basic shell commands.
+- Custom commands specified in the paths: "/usr/local/bin/", "/usr/bin/", "/bin/", "/usr/local/games/", "/usr/games/".
 
-### Further Development
+#### Exit the Shell:
 
-This is a basic shell implementation, and it can be further extended with additional features such as:
+```
+bash
 
-- More built-in commands for file manipulation, process control, etc.
-- Support for environment variables.
-- Command history and auto-completion.
-- Scripting capabilities.
+exit
+```
 
-We encourage you to explore the code and contribute to its development!
+### Function Descriptions
+
+- main: Main function of the shell, responsible for handling user input and executing commands.
+- check_access: Checks if a command has execute permission and searches for it in specified paths.
+- execute_command: Executes the given command with arguments.
+- parse_command: Parses the command into tokens.
+- display_prompt: Displays the shell prompt.
+- get_command: Reads a line of input from the user.
+- sigintHandler: Signal handler for SIGINT (Ctrl + C).
